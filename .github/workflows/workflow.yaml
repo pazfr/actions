@@ -1,0 +1,340 @@
+name: AWS Account Setup and Terraform CI/CD
+
+# 1. WORKFLOW TRIGGERS
+on:
+  # Manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      account_name:
+        description: 'Unique name for the new AWS account (e.g., my-new-client). Used for branch name and config.'
+        required: true
+        type: string
+      # Add other inputs if your Terraform config generation needs them (e.g., email, OU)
+      # terraform_template_vars:
+      #   description: 'JSON string of variables for Terraform template'
+      #   required: false
+      #   type: string
+
+  # Optional: Trigger on push to a specific branch if you want to automate PR creation from there
+  # push:
+  #   branches:
+  #     - 'feature/new-account-requests' # Example branch
+  #_____another example
+  #  push:
+    # branches:
+    #   - main
+    # paths:
+    #   - "**/*.tf"
+
+jobs:
+  # --------------------------------------------------------------------------
+  # JOB 1: CREATE CONFIGURATION, BRANCH, AND PULL REQUEST WITH TERRAFORM PLAN
+  # --------------------------------------------------------------------------
+  create_pr_and_plan:
+    name: Create Account Config PR & Plan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write      # To create branches, commit, push
+      pull-requests: write # To create PRs and comment on them
+    
+    env:
+      # Use a consistent naming convention for the new branch
+      NEW_BRANCH_NAME: feature/account-${{ github.event.inputs.account_name || 'new-account-setup' }}
+      # Define where Terraform files for the new account will live or be generated
+      # Example: terraform/accounts/your_account_name/
+      TERRAFORM_ACCOUNT_DIR: terraform/accounts/${{ github.event.inputs.account_name }}
+      # Define the main directory where terraform init/plan should run if different
+      TERRAFORM_WORKING_DIR: ./ # Or specify your main Terraform project root if applicable
+
+    steps:
+      - name: Checkout Base Branch
+        uses: actions/checkout@v4
+        with:
+          ref: main # Or your default/development branch (e.g., 'develop')
+
+      - name: Configure Git User
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@github.com"
+
+      - name: Create New Branch
+        run: |
+          git checkout -b ${{ env.NEW_BRANCH_NAME }}
+          echo "Created and switched to branch ${{ env.NEW_BRANCH_NAME }}"
+
+      - name: Generate or Copy Account Terraform Configuration
+        # THIS IS A CRITICAL STEP YOU NEED TO CUSTOMIZE
+        # Option 1: Run a script to generate .tf files
+        # Option 2: Copy predefined template files and modify them
+        # Option 3: Use tools like 'plop' or 'cookiecutter'
+        run: |
+          echo "Simulating Terraform configuration generation for account: ${{ github.event.inputs.account_name }}"
+          mkdir -p ${{ env.TERRAFORM_ACCOUNT_DIR }}
+          # Example: Create a placeholder main.tf for the new account
+          cat <<EOF > ${{ env.TERRAFORM_ACCOUNT_DIR }}/main.tf
+          # Terraform configuration for AWS account: ${{ github.event.inputs.account_name }}
+          # Provider configuration (ensure this is correctly set up for your organization)
+          # resource "aws_organizations_account" "new_account" {
+          #   name  = "${{ github.event.inputs.account_name }}"
+          #   email = "email_for_${{ github.event.inputs.account_name }}@example.com" # Parameterize this
+          #   # role_name = "OrganizationAccountAccessRole" # Default
+          #   # ... other configurations like parent_id, tags, etc.
+          # }
+          output "account_id_${{ github.event.inputs.account_name }}" {
+            # value = aws_organizations_account.new_account.id
+            value = "placeholder_account_id_for_${{ github.event.inputs.account_name }}" # Replace with actual output
+            description = "ID of the new account ${{ github.event.inputs.account_name }}"
+          }
+          EOF
+          echo "Placeholder configuration created in ${{ env.TERRAFORM_ACCOUNT_DIR }}/main.tf"
+          # You might also need to update a root module to include this new account configuration.
+          # For example, adding a module call in a central `main.tf` or `accounts.tf`.
+          # Example: echo 'module "${{ github.event.inputs.account_name }}" { source = "./accounts/${{ github.event.inputs.account_name }}" }' >> ${{ env.TERRAFORM_WORKING_DIR }}/all_accounts.tf
+
+      - name: Commit and Push Changes
+        run: |
+          git add .
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "feat: Add initial Terraform config for AWS account ${{ github.event.inputs.account_name }}"
+            git push origin ${{ env.NEW_BRANCH_NAME }}
+            echo "Committed and pushed changes to ${{ env.NEW_BRANCH_NAME }}"
+          fi
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "feat: Add Terraform config for AWS account ${{ github.event.inputs.account_name }}"
+          branch: ${{ env.NEW_BRANCH_NAME }}
+          base: main # Target branch for the PR (e.g., 'develop')
+          title: "feat(account): Add Terraform for AWS account ${{ github.event.inputs.account_name }}"
+          body: |
+            This PR introduces the Terraform configuration for the new AWS account: **${{ github.event.inputs.account_name }}**.
+
+            A `terraform plan` will be generated and attached as a comment shortly.
+
+            **Reviewers:** Please carefully check the plan output before approving.
+          labels: |
+            new-aws-account
+            terraform
+            automated-pr
+          draft: false # Set to true if you want to create draft PRs initially
+
+  #     - name: Setup Terraform
+  #       if: steps.create_pr.outputs.pull-request-operation == 'created' || steps.create_pr.outputs.pull-request-operation == 'updated'
+  #       uses: hashicorp/setup-terraform@v3
+  #       with:
+  #         terraform_version: latest # Or pin to your specific version, e.g., "1.7.0"
+
+  #     - name: Configure AWS Credentials (for Plan)
+  #       if: steps.create_pr.outputs.pull-request-operation == 'created' || steps.create_pr.outputs.pull-request-operation == 'updated'
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PLAN }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PLAN }}
+  #         aws-region: ${{ secrets.AWS_REGION }} # e.g., us-east-1
+
+  #     - name: Terraform Init
+  #       if: steps.create_pr.outputs.pull-request-operation == 'created' || steps.create_pr.outputs.pull-request-operation == 'updated'
+  #       id: init
+  #       run: terraform init -upgrade
+  #       working-directory: ${{ env.TERRAFORM_WORKING_DIR }} # Adjust if your main .tf files are elsewhere
+  #       # Add -backend-config options if needed and not in the .tf files
+
+  #     - name: Terraform Validate
+  #       if: steps.create_pr.outputs.pull-request-operation == 'created' || steps.create_pr.outputs.pull-request-operation == 'updated'
+  #       id: validate
+  #       run: terraform validate -no-color
+  #       working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
+
+  #     - name: Terraform Plan
+  #       if: steps.create_pr.outputs.pull-request-operation == 'created' || steps.create_pr.outputs.pull-request-operation == 'updated'
+  #       id: plan
+  #       run: |
+  #         terraform plan -no-color -out=tfplan.binary
+  #         # Convert plan to JSON for easier parsing or structured comments if preferred
+  #         # terraform show -json tfplan.binary > tfplan.json
+  #         # For a readable text comment:
+  #         PLAN_OUTPUT=$(terraform show tfplan.binary)
+  #         # Make plan output available to subsequent steps
+  #         echo "PLAN_OUTPUT<<EOF" >> $GITHUB_ENV
+  #         echo "$PLAN_OUTPUT" >> $GITHUB_ENV
+  #         echo "EOF" >> $GITHUB_ENV
+  #       working-directory: ${{ env.TERRAFORM_WORKING_DIR }}
+  #       continue-on-error: true # Allows commenting even if plan fails
+
+  #     - name: Add Plan Output as PR Comment
+  #       if: steps.create_pr.outputs.pull-request-operation == 'created' || steps.create_pr.outputs.pull-request-operation == 'updated'
+  #       uses: actions/github-script@v7
+  #       env:
+  #         PLAN_TEXT: ${{ steps.plan.outputs.stdout }} # Using direct output if GITHUB_ENV method is tricky
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         script: |
+  #           const prNumber = ${{ steps.create_pr.outputs.pull-request-number }};
+  #           const planExitCode = ${{ steps.plan.outcome == 'success' ? 0 : 1 }};
+  #           let commentBody;
+  #           const planOutput = process.env.PLAN_OUTPUT || "Plan output not available or plan failed early."; // Fallback
+
+  #           if (planExitCode === 0) {
+  #             commentBody = `✅ **Terraform Plan Succeeded** for account \`${{ github.event.inputs.account_name }}\`:\n\n<details><summary>Click to view Plan Output</summary>\n\n\`\`\`terraform\n${planOutput}\n\`\`\`\n</details>`;
+  #           } else {
+  #             commentBody = `❌ **Terraform Plan Failed** for account \`${{ github.event.inputs.account_name }}\`:\n\n<details><summary>Click to view Plan Output (if available)</summary>\n\n\`\`\`terraform\n${planOutput}\n\`\`\`\n</details>\n\nPlease review the workflow logs for errors.`;
+  #           }
+
+  #           // Ensure comment is not too long for GitHub API
+  #           const MAX_COMMENT_LENGTH = 65000; // Slightly less than actual limit for safety
+  #           if (commentBody.length > MAX_COMMENT_LENGTH) {
+  #             commentBody = commentBody.substring(0, MAX_COMMENT_LENGTH - 100) + "\n\n...(plan output truncated due to length)...";
+  #           }
+            
+  #           await github.rest.issues.createComment({
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             issue_number: prNumber,
+  #             body: commentBody
+  #           });
+
+  #     - name: Notify DevOps on Slack (PR & Plan)
+  #       if: (steps.create_pr.outputs.pull-request-operation == 'created' || steps.create_pr.outputs.pull-request-operation == 'updated') && always()
+  #       uses: slackapi/slack-github-action@v1.26.0
+  #       with:
+  #         payload: |
+  #           {
+  #             "text": "${{ steps.plan.outcome == 'success' && '✅ Terraform Plan Succeeded' || '❌ Terraform Plan Failed' }} for new account PR: `${{ github.event.inputs.account_name }}`",
+  #             "blocks": [
+  #               {
+  #                 "type": "header",
+  #                 "text": {
+  #                   "type": "plain_text",
+  #                   "text": "${{ steps.plan.outcome == 'success' && '✅ Plan OK' || '❌ Plan Failed' }}: New AWS Account Request - ${{ github.event.inputs.account_name }}"
+  #                 }
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "fields": [
+  #                   { "type": "mrkdwn", "text": "*Account Name:*\n`${{ github.event.inputs.account_name }}`" },
+  #                   { "type": "mrkdwn", "text": "*Plan Status:*\n${{ steps.plan.outcome == 'success' && 'Succeeded' || 'Failed/Error'}}" }
+  #                 ]
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "text": {
+  #                   "type": "mrkdwn",
+  #                   "text": "Pull Request: <${{ steps.create_pr.outputs.pull-request-url }}|#${{ steps.create_pr.outputs.pull-request-number }} - ${{ steps.create_pr.outputs.pull-request-title }}>"
+  #                 }
+  #               },
+  #               {
+  #                 "type": "actions",
+  #                 "elements": [
+  #                   {
+  #                     "type": "button",
+  #                     "text": { "type": "plain_text", "text": "View Pull Request" },
+  #                     "url": "${{ steps.create_pr.outputs.pull-request-url }}",
+  #                     "style": "primary"
+  #                   }
+  #                 ]
+  #               }
+  #             ]
+  #           }
+  #       env:
+  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEVOPS }}
+
+  # # --------------------------------------------------------------------------
+  # # JOB 2: TRIGGER AWS CODEPIPELINE ON PR MERGE
+  # # --------------------------------------------------------------------------
+  # trigger_apply_pipeline:
+  #   name: Trigger AWS CodePipeline for Apply
+  #   if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'feature/account-') # Trigger only on merge of specific branches
+  #   needs: create_pr_and_plan # Optional: ensure create_pr_and_plan job definition is valid, not a strict dependency for trigger logic
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: read # To checkout code
+  #     # id-token: write # If using OIDC for AWS authentication (recommended)
+
+  #   steps:
+  #     - name: Checkout Merged Code
+  #       uses: actions/checkout@v4
+  #       # This will checkout the code from the base branch after the PR is merged.
+
+  #     - name: Configure AWS Credentials (for CodePipeline Trigger)
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         # Option 1: IAM User (less secure)
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_APPLY }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_APPLY }}
+  #         aws-region: ${{ secrets.AWS_REGION }}
+  #         # Option 2: OIDC (more secure - recommended)
+  #         # role-to-assume: arn:aws:iam::YOUR_AWS_ACCOUNT_ID:role/GitHubActionCodePipelineTriggerRole # Replace with your OIDC role ARN
+  #         # aws-region: ${{ secrets.AWS_REGION }}
+
+  #     - name: Extract Account Name from Merged Branch
+  #       id: extract_account_name
+  #       run: |
+  #         # Example: branch name is 'feature/account-my-client-xyz'
+  #         BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+  #         ACCOUNT_NAME_EXTRACTED=$(echo "$BRANCH_NAME" | sed -n 's/feature\/account-\(.*\)/\1/p')
+  #         if [ -z "$ACCOUNT_NAME_EXTRACTED" ]; then
+  #           echo "Could not determine account name from branch: $BRANCH_NAME. Using PR title as fallback."
+  #           # Fallback: try to get from PR title if it has a pattern like "account client-name"
+  #           ACCOUNT_NAME_EXTRACTED=$(echo "${{ github.event.pull_request.title }}" | sed -n 's/.*account \([^ ]*\).*/\1/pI') # Case-insensitive search
+  #         fi
+  #         echo "ACCOUNT_NAME=${ACCOUNT_NAME_EXTRACTED:-unknown_account}" >> $GITHUB_ENV
+  #         echo "Determined account name for pipeline: ${ACCOUNT_NAME_EXTRACTED:-unknown_account}"
+
+  #     - name: Trigger AWS CodePipeline
+  #       id: trigger_pipeline
+  #       run: |
+  #         echo "Attempting to trigger AWS CodePipeline: ${{ secrets.AWS_CODEPIPELINE_NAME }}"
+  #         echo "Account context for this trigger: ${{ env.ACCOUNT_NAME }}"
+          
+  #         # If your CodePipeline can accept variables (e.g., for targeted deployments):
+  #         # PIPELINE_VARIABLES="[{\"name\":\"TargetAccountName\",\"value\":\"${{ env.ACCOUNT_NAME }}\"},{\"name\":\"TerraformRootPath\",\"value\":\"${{ env.TERRAFORM_ACCOUNT_DIR }}\"}]"
+  #         # aws codepipeline start-pipeline-execution --name "${{ secrets.AWS_CODEPIPELINE_NAME }}" --pipeline-variables "${PIPELINE_VARIABLES}"
+
+  #         # If CodePipeline sources the whole repo and figures out what to do based on merged changes:
+  #         aws codepipeline start-pipeline-execution --name "${{ secrets.AWS_CODEPIPELINE_NAME }}"
+          
+  #         echo "AWS CodePipeline '${{ secrets.AWS_CODEPIPELINE_NAME }}' triggered successfully."
+  #       env:
+  #         AWS_CODEPIPELINE_NAME: ${{ secrets.AWS_CODEPIPELINE_NAME }} # Store your CodePipeline name in GitHub Secrets
+  #       continue-on-error: false # Fail the job if pipeline trigger fails
+
+  #     - name: Notify DevOps on Slack (Apply Triggered)
+  #       if: always() # Notify whether trigger succeeded or failed
+  #       uses: slackapi/slack-github-action@v1.26.0
+  #       with:
+  #         payload: |
+  #           {
+  #             "text": "${{ steps.trigger_pipeline.outcome == 'success' && '🚀 AWS Account Creation Process Initiated' || '⚠️ Failed to Initiate AWS Account Creation' }} for `${{ env.ACCOUNT_NAME }}`",
+  #             "blocks": [
+  #               {
+  #                 "type": "header",
+  #                 "text": {
+  #                   "type": "plain_text",
+  #                   "text": "${{ steps.trigger_pipeline.outcome == 'success' && '🚀 Account Creation Initiated' || '⚠️ Initiation Failed' }}: ${{ env.ACCOUNT_NAME }}"
+  #                 }
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "fields": [
+  #                   { "type": "mrkdwn", "text": "*Account Name:*\n`${{ env.ACCOUNT_NAME }}`" },
+  #                   { "type": "mrkdwn", "text": "*Status:*\n${{ steps.trigger_pipeline.outcome == 'success' && 'AWS CodePipeline Triggered Successfully' || 'Failed to Trigger AWS CodePipeline'}}" }
+  #                 ]
+  #               },
+  #               {
+  #                 "type": "section",
+  #                 "text": {
+  #                   "type": "mrkdwn",
+  #                   "text": "${{ steps.trigger_pipeline.outcome == 'success' && 'Monitor AWS CodePipeline `' + secrets.AWS_CODEPIPELINE_NAME + '` for progress and final status.' || 'Please check the GitHub Actions logs for errors.'}}"
+  #                 }
+  #               }
+  #               ${{ steps.trigger_pipeline.outcome == 'success' && secrets.AWS_CODEPIPELINE_CONSOLE_URL && format(',{{ "type": "actions", "elements": [ {{ "type": "button", "text": {{ "type": "plain_text", "text": "View CodePipeline" }}, "url": "{0}" }} ] }}', secrets.AWS_CODEPIPELINE_CONSOLE_URL) || '' }}
+  #             ]
+  #           }
+  #       env:
+  #         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEVOPS }}
