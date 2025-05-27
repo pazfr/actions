@@ -1,0 +1,32 @@
+name: Process Merged AWS Account PR
+
+on:
+  pull_request:
+    types: [closed] # This workflow runs when any PR is closed
+
+permissions:
+  contents: read 
+
+jobs:
+  post_merge_actions:
+    name: Perform Actions After Account PR Merge
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'feature/add-account-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (merged base branch)
+        uses: actions/checkout@v4
+        with:
+          # Checkout the code from the branch the PR was merged into (e.g., main)
+          # This ensures we have the updated accounts-config.yaml
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Extract Account Info from Merged PR
+        id: extract_info
+        run: |
+          set -x
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          ACCOUNT_NAME_FROM_TITLE=$(echo "$PR_TITLE" | sed -n 's/feat: Add new AWS account //p')
+          echo "Extracted account name from PR title: '${ACCOUNT_NAME_FROM_TITLE}'"
+          echo "account_name=${ACCOUNT_NAME_FROM_TITLE:-unknown}" >> $GITHUB_OUTPUT

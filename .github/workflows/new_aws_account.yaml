@@ -15,8 +15,6 @@ on:
         description: 'Organizational Unit (e.g., Workloads/NewApp)'
         required: true
         type: string
-  pull_request:      # For triggering actions after a PR is merged
-    types: [closed]  # This means the workflow will run when a PR is closed (merged or not)
 
 
 permissions:
@@ -30,7 +28,6 @@ jobs:
   ##################################################################################
   prepare_and_pr:
     name: Prepare Config and Create PR
-    if: github.event_name == 'workflow_dispatch' # IMPORTANT: Only run on manual trigger
     runs-on: ubuntu-latest
     outputs:
       branch_name: ${{ steps.create_branch.outputs.branch_name }}
@@ -57,7 +54,7 @@ jobs:
 
       - name: Update accounts-config.yaml
         run: |
-          yq e '.workloadAccounts += [{"name": "${{ github.event.inputs.accountName }}", "email": "${{ github.event.inputs.accountEmail }}", "organizationalUnit": "${{ github.event.inputs.organizationalUnit }}", "warm": false}]' -i accounts-config.yaml
+          yq e '.workloadAccounts += [{"name": "${{ github.event.inputs.accountName }}", "email": "${{ github.event.inputs.accountEmail }}", "organizationalUnit": "${{ github.event.inputs.organizationalUnit }}"}]' -i accounts-config.yaml
           echo "Updated accounts-config.yaml:"
           cat accounts-config.yaml
 
@@ -121,13 +118,9 @@ jobs:
       - name: Checkout repository (main branch)
         uses: actions/checkout@v4
         with:
-          ref: main # Or your default branch
-
+          ref: main
       - name: Get Account Details from Merged PR Branch Name
         id: get_account_details
-        # This step attempts to extract details if needed, or you can pass them from the trigger if possible
-        # For simplicity, we'll assume the main branch config is now the source of truth
-        # If you need the specific inputs from the original dispatch, you'd need a more complex way to pass them or retrieve from PR body.
         run: |
           echo "Merged branch was: ${{ github.event.pull_request.head.ref }}"
 
