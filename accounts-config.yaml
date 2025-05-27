@@ -51,7 +51,7 @@ workloadAccounts:
      organizationalUnit: "SavingPlans"
    - name: 123-saving-plan-3
      email: 123-saving-plan-3@123.io
-     organizationalUnit: "SavingPlans"
+     organizationalUnit: "SavingPlan"
   #  - name: 123-aws-eventbridge-test
   #    email: aws-eventbridge@123.io
   #    organizationalUnit: "Workloads/Non-Prod/Dev"
