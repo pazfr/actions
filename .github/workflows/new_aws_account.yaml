@@ -79,18 +79,58 @@ jobs:
       #     pr_assignee: "your-devops-team-github-handle" # Optional: Assign a team or user
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Pull Request
-        id: create_pr
-        uses: peter-evans/create-pull-request@v6 # Updated to v6 which is latest as of now, v4 is also fine. Check for latest.
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.create_branch.outputs.branch_name }}
-          base: main # Or your default branch
-          title: "feat: Add new AWS account ${{ github.event.inputs.accountName }}"
-          body: |
+      # - name: Create Pull Request
+      #   id: create_pr
+      #   uses: peter-evans/create-pull-request@v6 # Updated to v6 which is latest as of now, v4 is also fine. Check for latest.
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     branch: ${{ steps.create_branch.outputs.branch_name }}
+      #     base: main # Or your default branch
+      #     title: "feat: Add new AWS account ${{ github.event.inputs.accountName }}"
+      #     body: |
+      #       This PR adds the following AWS account to the configuration:
+      #       - **Name:** ${{ github.event.inputs.accountName }}
+      #       - **Email:** ${{ github.event.inputs.accountEmail }}
+      #       - **Organizational Unit:** ${{ github.event.inputs.organizationalUnit }}
+
+      #       Please review the changes in `accounts-config.yaml`.
+
+      - name: Create Pull Request with GitHub CLI
+        id: create_pr_cli
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # gh CLI uses this for authentication
+          PR_BRANCH: ${{ steps.create_branch.outputs.branch_name }}
+          BASE_BRANCH: main # Or your default branch (e.g., master)
+          PR_TITLE: "feat: Add new AWS account ${{ github.event.inputs.accountName }}"
+          # Define multiline body as an environment variable for this step
+          # GitHub Actions will make this available to the script.
+          PR_BODY_CONTENT: |
             This PR adds the following AWS account to the configuration:
             - **Name:** ${{ github.event.inputs.accountName }}
             - **Email:** ${{ github.event.inputs.accountEmail }}
             - **Organizational Unit:** ${{ github.event.inputs.organizationalUnit }}
 
-            Please review the changes in `accounts-config.yaml`.
+            Please review the changes in accounts-config.yaml.
+        run: |
+          set -eo pipefail # Exit immediately if a command exits with a non-zero status.
+
+          echo "Creating PR for branch '$PR_BRANCH' against base '$BASE_BRANCH'..."
+
+          # 'gh pr create' prints the PR URL to stdout on success.
+          # It will use GH_TOKEN (or GITHUB_TOKEN by default) for authentication.
+          # If it fails (e.g., branch not pushed, no difference, auth issue),
+          # it will exit with a non-zero status, and 'set -eo pipefail' will stop the script.
+          PR_URL=$(gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$PR_BRANCH" \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY_CONTENT") # Use the env var for the body
+
+          echo "Successfully created PR: $PR_URL"
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+
+          # Extract PR number from URL (e.g., https://github.com/owner/repo/pull/123)
+          # 'basename' will get the last component of the path.
+          PR_NUMBER=$(basename "$PR_URL")
+          echo "Extracted PR Number: $PR_NUMBER"
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
