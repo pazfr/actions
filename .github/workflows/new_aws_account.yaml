@@ -15,6 +15,8 @@ on:
         description: 'Organizational Unit (e.g., Workloads/NewApp)'
         required: true
         type: string
+  pull_request:      # For triggering actions after a PR is merged
+    types: [closed]  # This means the workflow will run when a PR is closed (merged or not)
 
 
 permissions:
@@ -107,7 +109,11 @@ jobs:
 
   apply_and_validate_on_merge:
     name: Apply Config, Validate, and Notify
-    if: github.event_name == 'workflow_dispatch'
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'feature/add-account-')
     needs: prepare_and_pr
     runs-on: ubuntu-latest
     steps:
