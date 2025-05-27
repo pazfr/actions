@@ -1,98 +1,96 @@
 mandatoryAccounts:
   - name: Management
     description: >-
-      The management (primary) account. Do not change the name field for this
-      mandatory account. Note, the account name key does not need to match the
-      AWS account name.
+      The management (primary) account. Do not change the name field for this mandatory account. Note, the account name key does not need to match the AWS account name.
     email: 123_Payer@cldze.com
     organizationalUnit: Root
     warm: false
   - name: LogArchive
     description: >-
-      The log archive account. Do not change the name field for this mandatory
-      account. Note, the account name key does not need to match the AWS account
-      name.
+      The log archive account. Do not change the name field for this mandatory account. Note, the account name key does not need to match the AWS account name.
     email: aws-log-archive@123.io
     organizationalUnit: Security
     warm: false
   - name: Audit
     description: >-
-      The security audit account (also referred to as the audit account). Do not
-      change the name field for this mandatory account. Note, the account name
-      key does not need to match the AWS account name.
+      The security audit account (also referred to as the audit account). Do not change the name field for this mandatory account. Note, the account name key does not need to match the AWS account name.
     email: aws-audit@123.io
     organizationalUnit: Security
     warm: false
 workloadAccounts:
-   - name: 123-aws-networking
-     email: aws-networking@123.io
-     organizationalUnit: "Infrastructure"
-     warm: false
-   - name: 123-aws-ss
-     email: aws-shared-services@123.io
-     organizationalUnit: "Infrastructure"
-   - name: 123-aws-multi-tenant
-     email: aws-multi-tenant@123.io
-     organizationalUnit: "Workloads/ProdMultiTenant"
-   - name: 123-aws-staging
-     email: aws-staging@123.io
-     organizationalUnit: "Workloads/Non-Prod/Staging"
-   - name: 123-aws-dev
-     email: aws-123-dev@123.io
-     organizationalUnit: "Workloads/Non-Prod/Dev"
-   - name: 123-aws-multi-tenant-eu-central-1
-     email: aws-multi-tenant-eu-central-1@123.io
-     organizationalUnit: "Workloads/ProdMultiTenant"
-   - name: 123-saving-plan-1
-     email: 123-saving-plan-1@123.io
-     organizationalUnit: "SavingPlans"
-   - name: 123-saving-plan-2
-     email: 123-saving-plan-2@123.io
-     organizationalUnit: "SavingPlans"
-   - name: 123-saving-plan-3
-     email: 123-saving-plan-3@123.io
-     organizationalUnit: "SavingPlans"
-  #  - name: 123-aws-eventbridge-test
-  #    email: aws-eventbridge@123.io
-  #    organizationalUnit: "Workloads/Non-Prod/Dev"
-  #    warm: false
-  #  - name: aerocrs-syslog
-  #    email: syslog@aerocrs.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: AeroCRSBackup
-  #    email: sysadmin@aerocrs.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: MeirHadassiTurner
-  #    email: meir@aerocrs.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: 123_Prod
-  #    email: 123_Prod@cldze.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: bonza-uat
-  #    email: bonza-uat@cldze.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: 123_Management
-  #    email: 123_Management@cldze.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: 123_Dev
-  #    email: 123_Dev@cldze.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: 123pss-stg
-  #    email: 123pss-stg@cldze.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: bonza-prod
-  #    email: bonza-prod@cldze.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
-  #  - name: 123-bedrock
-  #    email: 123-bedrock@cldze.com
-  #    organizationalUnit: "Excluded"
-  #    warm: false
+  - name: 123-aws-networking
+    email: aws-networking@123.io
+    organizationalUnit: "Infrastructure"
+    warm: false
+  - name: 123-aws-ss
+    email: aws-shared-services@123.io
+    organizationalUnit: "Infrastructure"
+  - name: 123-aws-multi-tenant
+    email: aws-multi-tenant@123.io
+    organizationalUnit: "Workloads/ProdMultiTenant"
+  - name: 123-aws-staging
+    email: aws-staging@123.io
+    organizationalUnit: "Workloads/Non-Prod/Staging"
+  - name: 123-aws-dev
+    email: aws-123-dev@123.io
+    organizationalUnit: "Workloads/Non-Prod/Dev"
+  - name: 123-aws-multi-tenant-eu-central-1
+    email: aws-multi-tenant-eu-central-1@123.io
+    organizationalUnit: "Workloads/ProdMultiTenant"
+  - name: 123-saving-plan-1
+    email: 123-saving-plan-1@123.io
+    organizationalUnit: "SavingPlans"
+  - name: 123-saving-plan-2
+    email: 123-saving-plan-2@123.io
+    organizationalUnit: "SavingPlans"
+  - name: 123-saving-plan-3
+    email: 123-saving-plan-3@123.io
+    organizationalUnit: "SavingPlans"
+  - name: asdasd
+    email: asd@feasfds.com
+    organizationalUnit: ASDFsdfsdf
+    warm: false
+#  - name: 123-aws-eventbridge-test
+#    email: aws-eventbridge@123.io
+#    organizationalUnit: "Workloads/Non-Prod/Dev"
+#    warm: false
+#  - name: aerocrs-syslog
+#    email: syslog@aerocrs.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: AeroCRSBackup
+#    email: sysadmin@aerocrs.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: MeirHadassiTurner
+#    email: meir@aerocrs.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: 123_Prod
+#    email: 123_Prod@cldze.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: bonza-uat
+#    email: bonza-uat@cldze.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: 123_Management
+#    email: 123_Management@cldze.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: 123_Dev
+#    email: 123_Dev@cldze.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: 123pss-stg
+#    email: 123pss-stg@cldze.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: bonza-prod
+#    email: bonza-prod@cldze.com
+#    organizationalUnit: "Excluded"
+#    warm: false
+#  - name: 123-bedrock
+#    email: 123-bedrock@cldze.com
+#    organizationalUnit: "Excluded"
+#    warm: false
