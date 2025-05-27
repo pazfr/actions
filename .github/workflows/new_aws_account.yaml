@@ -30,6 +30,7 @@ jobs:
   ##################################################################################
   prepare_and_pr:
     name: Prepare Config and Create PR
+    if: github.event_name == 'workflow_dispatch' # IMPORTANT: Only run on manual trigger
     runs-on: ubuntu-latest
     outputs:
       branch_name: ${{ steps.create_branch.outputs.branch_name }}
