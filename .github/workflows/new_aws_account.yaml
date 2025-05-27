@@ -16,6 +16,12 @@ on:
         required: true
         type: string
 
+# Add this permissions block
+permissions:
+  contents: write      # Needed for committing and pushing the new branch
+  pull-requests: write # Needed for creating the pull request using gh pr create
+
+
 jobs:
   ##################################################################################
   # 1. Update Config, Create Branch, and Open PR                                   #
