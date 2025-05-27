@@ -61,6 +61,9 @@ workloadAccounts:
   - name: Ben
     email: 213@fasd.com
     organizationalUnit: qwewalAS
+  - name: PAZ
+    email: qwejh@mclskd.com
+    organizationalUnit: adsbASDSA
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
