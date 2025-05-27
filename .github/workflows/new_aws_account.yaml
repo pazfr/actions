@@ -107,8 +107,9 @@ jobs:
 
   apply_and_validate_on_merge:
     name: Apply Config, Validate, and Notify
+    if: github.event_name == 'workflow_dispatch'
+    needs: prepare_and_pr
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'feature/add-account-')
     steps:
       - name: Checkout repository (main branch)
         uses: actions/checkout@v4
