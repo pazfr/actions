@@ -67,6 +67,9 @@ workloadAccounts:
   - name: TEST
     email: sdf@fsd.cpm
     organizationalUnit: wefsdfsd
+  - name: NOY
+    email: sdfsdf213
+    organizationalUnit: esfsadfsf
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
