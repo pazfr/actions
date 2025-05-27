@@ -64,6 +64,9 @@ workloadAccounts:
   - name: PAZ
     email: qwejh@mclskd.com
     organizationalUnit: adsbASDSA
+  - name: TEST
+    email: sdf@fsd.cpm
+    organizationalUnit: wefsdfsd
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
