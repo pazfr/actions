@@ -4,7 +4,7 @@ mandatoryAccounts:
       The management (primary) account. Do not change the name field for this
       mandatory account. Note, the account name key does not need to match the
       AWS account name.
-    email: Go7_Payer@cldze.com
+    email: 123_Payer@cldze.com
     organizationalUnit: Root
     warm: false
   - name: LogArchive
@@ -12,7 +12,7 @@ mandatoryAccounts:
       The log archive account. Do not change the name field for this mandatory
       account. Note, the account name key does not need to match the AWS account
       name.
-    email: aws-log-archive@go7.io
+    email: aws-log-archive@123.io
     organizationalUnit: Security
     warm: false
   - name: Audit
@@ -20,40 +20,40 @@ mandatoryAccounts:
       The security audit account (also referred to as the audit account). Do not
       change the name field for this mandatory account. Note, the account name
       key does not need to match the AWS account name.
-    email: aws-audit@go7.io
+    email: aws-audit@123.io
     organizationalUnit: Security
     warm: false
 workloadAccounts:
-   - name: go7-aws-networking
-     email: aws-networking@go7.io
+   - name: 123-aws-networking
+     email: aws-networking@123.io
      organizationalUnit: "Infrastructure"
      warm: false
-   - name: go7-aws-ss
-     email: aws-shared-services@go7.io
+   - name: 123-aws-ss
+     email: aws-shared-services@123.io
      organizationalUnit: "Infrastructure"
-   - name: go7-aws-multi-tenant
-     email: aws-multi-tenant@go7.io
+   - name: 123-aws-multi-tenant
+     email: aws-multi-tenant@123.io
      organizationalUnit: "Workloads/ProdMultiTenant"
-   - name: go7-aws-staging
-     email: aws-staging@go7.io
+   - name: 123-aws-staging
+     email: aws-staging@123.io
      organizationalUnit: "Workloads/Non-Prod/Staging"
-   - name: go7-aws-dev
-     email: aws-go7-dev@go7.io
+   - name: 123-aws-dev
+     email: aws-123-dev@123.io
      organizationalUnit: "Workloads/Non-Prod/Dev"
-   - name: go7-aws-multi-tenant-eu-central-1
-     email: aws-multi-tenant-eu-central-1@go7.io
+   - name: 123-aws-multi-tenant-eu-central-1
+     email: aws-multi-tenant-eu-central-1@123.io
      organizationalUnit: "Workloads/ProdMultiTenant"
-   - name: go7-saving-plan-1
-     email: go7-saving-plan-1@go7.io
+   - name: 123-saving-plan-1
+     email: 123-saving-plan-1@123.io
      organizationalUnit: "SavingPlans"
-   - name: go7-saving-plan-2
-     email: go7-saving-plan-2@go7.io
+   - name: 123-saving-plan-2
+     email: 123-saving-plan-2@123.io
      organizationalUnit: "SavingPlans"
-   - name: go7-saving-plan-3
-     email: go7-saving-plan-3@go7.io
+   - name: 123-saving-plan-3
+     email: 123-saving-plan-3@123.io
      organizationalUnit: "SavingPlans"
-  #  - name: go7-aws-eventbridge-test
-  #    email: aws-eventbridge@go7.io
+  #  - name: 123-aws-eventbridge-test
+  #    email: aws-eventbridge@123.io
   #    organizationalUnit: "Workloads/Non-Prod/Dev"
   #    warm: false
   #  - name: aerocrs-syslog
@@ -68,31 +68,31 @@ workloadAccounts:
   #    email: meir@aerocrs.com
   #    organizationalUnit: "Excluded"
   #    warm: false
-  #  - name: GO7_Prod
-  #    email: GO7_Prod@cldze.com
+  #  - name: 123_Prod
+  #    email: 123_Prod@cldze.com
   #    organizationalUnit: "Excluded"
   #    warm: false
   #  - name: bonza-uat
   #    email: bonza-uat@cldze.com
   #    organizationalUnit: "Excluded"
   #    warm: false
-  #  - name: GO7_Management
-  #    email: GO7_Management@cldze.com
+  #  - name: 123_Management
+  #    email: 123_Management@cldze.com
   #    organizationalUnit: "Excluded"
   #    warm: false
-  #  - name: GO7_Dev
-  #    email: GO7_Dev@cldze.com
+  #  - name: 123_Dev
+  #    email: 123_Dev@cldze.com
   #    organizationalUnit: "Excluded"
   #    warm: false
-  #  - name: go7pss-stg
-  #    email: go7pss-stg@cldze.com
+  #  - name: 123pss-stg
+  #    email: 123pss-stg@cldze.com
   #    organizationalUnit: "Excluded"
   #    warm: false
   #  - name: bonza-prod
   #    email: bonza-prod@cldze.com
   #    organizationalUnit: "Excluded"
   #    warm: false
-  #  - name: go7-bedrock
-  #    email: go7-bedrock@cldze.com
+  #  - name: 123-bedrock
+  #    email: 123-bedrock@cldze.com
   #    organizationalUnit: "Excluded"
   #    warm: false
