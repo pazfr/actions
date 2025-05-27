@@ -1,0 +1,98 @@
+mandatoryAccounts:
+  - name: Management
+    description: >-
+      The management (primary) account. Do not change the name field for this
+      mandatory account. Note, the account name key does not need to match the
+      AWS account name.
+    email: Go7_Payer@cldze.com
+    organizationalUnit: Root
+    warm: false
+  - name: LogArchive
+    description: >-
+      The log archive account. Do not change the name field for this mandatory
+      account. Note, the account name key does not need to match the AWS account
+      name.
+    email: aws-log-archive@go7.io
+    organizationalUnit: Security
+    warm: false
+  - name: Audit
+    description: >-
+      The security audit account (also referred to as the audit account). Do not
+      change the name field for this mandatory account. Note, the account name
+      key does not need to match the AWS account name.
+    email: aws-audit@go7.io
+    organizationalUnit: Security
+    warm: false
+workloadAccounts:
+   - name: go7-aws-networking
+     email: aws-networking@go7.io
+     organizationalUnit: "Infrastructure"
+     warm: false
+   - name: go7-aws-ss
+     email: aws-shared-services@go7.io
+     organizationalUnit: "Infrastructure"
+   - name: go7-aws-multi-tenant
+     email: aws-multi-tenant@go7.io
+     organizationalUnit: "Workloads/ProdMultiTenant"
+   - name: go7-aws-staging
+     email: aws-staging@go7.io
+     organizationalUnit: "Workloads/Non-Prod/Staging"
+   - name: go7-aws-dev
+     email: aws-go7-dev@go7.io
+     organizationalUnit: "Workloads/Non-Prod/Dev"
+   - name: go7-aws-multi-tenant-eu-central-1
+     email: aws-multi-tenant-eu-central-1@go7.io
+     organizationalUnit: "Workloads/ProdMultiTenant"
+   - name: go7-saving-plan-1
+     email: go7-saving-plan-1@go7.io
+     organizationalUnit: "SavingPlans"
+   - name: go7-saving-plan-2
+     email: go7-saving-plan-2@go7.io
+     organizationalUnit: "SavingPlans"
+   - name: go7-saving-plan-3
+     email: go7-saving-plan-3@go7.io
+     organizationalUnit: "SavingPlans"
+  #  - name: go7-aws-eventbridge-test
+  #    email: aws-eventbridge@go7.io
+  #    organizationalUnit: "Workloads/Non-Prod/Dev"
+  #    warm: false
+  #  - name: aerocrs-syslog
+  #    email: syslog@aerocrs.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: AeroCRSBackup
+  #    email: sysadmin@aerocrs.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: MeirHadassiTurner
+  #    email: meir@aerocrs.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: GO7_Prod
+  #    email: GO7_Prod@cldze.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: bonza-uat
+  #    email: bonza-uat@cldze.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: GO7_Management
+  #    email: GO7_Management@cldze.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: GO7_Dev
+  #    email: GO7_Dev@cldze.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: go7pss-stg
+  #    email: go7pss-stg@cldze.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: bonza-prod
+  #    email: bonza-prod@cldze.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false
+  #  - name: go7-bedrock
+  #    email: go7-bedrock@cldze.com
+  #    organizationalUnit: "Excluded"
+  #    warm: false

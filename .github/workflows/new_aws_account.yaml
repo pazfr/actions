@@ -1,0 +1,80 @@
+name: Add AWS Account
+
+on:
+  workflow_dispatch:
+    inputs:
+      accountName:
+        description: 'Account Name (e.g., my-new-app)'
+        required: true
+        type: string
+      accountEmail:
+        description: 'Account Email (e.g., aws-my-new-app@example.com)'
+        required: true
+        type: string
+      organizationalUnit:
+        description: 'Organizational Unit (e.g., Workloads/NewApp)'
+        required: true
+        type: string
+
+jobs:
+  ##################################################################################
+  # 1. Update Config, Create Branch, and Open PR                                   #
+  ##################################################################################
+  prepare_and_pr:
+    name: Prepare Config and Create PR
+    runs-on: ubuntu-latest
+    outputs:
+      branch_name: ${{ steps.create_branch.outputs.branch_name }}
+      pr_number: ${{ steps.create_pr.outputs.pr_number }}
+      pr_url: ${{ steps.create_pr.outputs.pr_url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up yq
+        uses: mikefarah/yq@v4.40.5 # Or the latest version
+
+      - name: Generate Branch Name
+        id: generate_branch
+        run: echo "branch_name=feature/add-account-${{ github.event.inputs.accountName }}" >> $GITHUB_OUTPUT
+
+      - name: Create New Branch
+        id: create_branch
+        run: |
+          git checkout -b ${{ steps.generate_branch.outputs.branch_name }}
+          echo "branch_name=${{ steps.generate_branch.outputs.branch_name }}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update accounts-config.yaml
+        run: |
+          yq e '.workloadAccounts += [{"name": "${{ github.event.inputs.accountName }}", "email": "${{ github.event.inputs.accountEmail }}", "organizationalUnit": "${{ github.event.inputs.organizationalUnit }}", "warm": false}]' -i accounts-config.yaml
+          echo "Updated accounts-config.yaml:"
+          cat accounts-config.yaml
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add accounts-config.yaml
+          git commit -m "feat: Add new account ${{ github.event.inputs.accountName }}"
+          git push origin ${{ steps.create_branch.outputs.branch_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ steps.create_branch.outputs.branch_name }}
+          destination_branch: main # Or your default branch
+          pr_title: "feat: Add new AWS account ${{ github.event.inputs.accountName }}"
+          pr_body: |
+            This PR adds the following AWS account to the configuration:
+            - **Name:** ${{ github.event.inputs.accountName }}
+            - **Email:** ${{ github.event.inputs.accountEmail }}
+            - **Organizational Unit:** ${{ github.event.inputs.organizationalUnit }}
+
+            Please review the changes in `accounts-config.yaml`.
+          pr_assignee: "your-devops-team-github-handle" # Optional: Assign a team or user
+          github_token: ${{ secrets.GITHUB_TOKEN }}
