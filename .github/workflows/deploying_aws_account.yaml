@@ -23,14 +23,15 @@ jobs:
           # This ensures we have the updated accounts-config.yaml
           ref: ${{ github.event.pull_request.base.ref }}
 
-      - name: Extract Account Info from Merged PR
-        id: extract_info
+      - name: Zip Repository Contents
+        id: zip_repo
         run: |
-          set -x
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          ACCOUNT_NAME_FROM_TITLE=$(echo "$PR_TITLE" | sed -n 's/feat: Add new AWS account //p')
-          echo "Extracted account name from PR title: '${ACCOUNT_NAME_FROM_TITLE}'"
-          echo "account_name=${ACCOUNT_NAME_FROM_TITLE:-unknown}" >> $GITHUB_OUTPUT
+          ZIP_FILENAME="aws-accelerator-configuration.zip"
+          echo "Zipping repository contents to $ZIP_FILENAME..."
+          zip -r ${{ github.workspace }}/$ZIP_FILENAME . 
+          echo "Repository content zipped to ${{ github.workspace }}/$ZIP_FILENAME"
+          ls -lh ${{ github.workspace }}/$ZIP_FILENAME
+          echo "zip_filename=$ZIP_FILENAME" >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials via OIDC
         env:
