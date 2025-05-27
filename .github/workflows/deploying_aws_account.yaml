@@ -30,3 +30,27 @@ jobs:
           ACCOUNT_NAME_FROM_TITLE=$(echo "$PR_TITLE" | sed -n 's/feat: Add new AWS account //p')
           echo "Extracted account name from PR title: '${ACCOUNT_NAME_FROM_TITLE}'"
           echo "account_name=${ACCOUNT_NAME_FROM_TITLE:-unknown}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS Credentials via OIDC
+        env:
+          AWS_ACCOUNT_ID: "615299762807"
+          AWS_ASSUME_ROLE_ARN: "arn:aws:iam::615299762807:role/github_role" # <<< REPLACE THIS
+          REGION: us-east-1 
+        uses: aws-actions/configure-aws-credentials@v4 # Using latest major version
+        with:
+          # Replace with the ARN of the IAM Role you created in AWS
+          role-to-assume: ${{ env.AWS_ASSUME_ROLE_ARN }}
+          aws-region: ${{ env.REGION }} # e.g., us-east-1, region of your S3 bucket
+
+      - name: Upload Package to S3
+        env:
+          S3_BUCKET_NAME: "testbacket123123123"
+          ACCOUNT_NAME: ${{ steps.extract_info.outputs.account_name }}
+          ZIP_FILE_PATH: "${{ github.workspace }}/${{ steps.zip_repo.outputs.zip_filename }}"
+          S3_OBJECT_KEY: "${{ env.BUCKET_NAME }}/zipped/"
+        run: |
+          set -ex # Exit on error, print commands
+          echo "Uploading $ZIP_FILE_PATH to s3://$S3_BUCKET_NAME/$S3_OBJECT_KEY ..."
+          aws s3 cp "$ZIP_FILE_PATH" "s3://$S3_BUCKET_NAME/$S3_OBJECT_KEY"
+          echo "Successfully uploaded to s3://$S3_BUCKET_NAME/$S3_OBJECT_KEY"
+
