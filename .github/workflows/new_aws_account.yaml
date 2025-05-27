@@ -105,23 +105,3 @@ jobs:
           echo "Extracted PR Number: $PR_NUMBER"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
-  apply_and_validate_on_merge:
-    name: Apply Config, Validate, and Notify
-    if: |
-      github.event_name == 'pull_request' &&
-      github.event.action == 'closed' &&
-      github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.head.ref, 'feature/add-account-')
-    needs: prepare_and_pr
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository (main branch)
-        uses: actions/checkout@v4
-        with:
-          ref: main
-      - name: Get Account Details from Merged PR Branch Name
-        id: get_account_details
-        run: |
-          echo "Merged branch was: ${{ github.event.pull_request.head.ref }}"
-
-          echo "The AWS Accelerator apply will use the latest config on the main branch."
