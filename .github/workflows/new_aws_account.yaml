@@ -78,12 +78,14 @@ jobs:
       #       Please review the changes in `accounts-config.yaml`.
       #     pr_assignee: "your-devops-team-github-handle" # Optional: Assign a team or user
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Pull Request
         id: create_pr
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v6 # Updated to v6 which is latest as of now, v4 is also fine. Check for latest.
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "feat: Add new AWS account ${{ github.event.inputs.accountName }}"
+          branch: ${{ steps.create_branch.outputs.branch_name }}
+          base: main # Or your default branch
           title: "feat: Add new AWS account ${{ github.event.inputs.accountName }}"
           body: |
             This PR adds the following AWS account to the configuration:
@@ -92,5 +94,3 @@ jobs:
             - **Organizational Unit:** ${{ github.event.inputs.organizationalUnit }}
 
             Please review the changes in `accounts-config.yaml`.
-          branch: ${{ steps.create_branch.outputs.branch_name }}
-          base: main
