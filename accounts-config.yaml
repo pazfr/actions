@@ -50,6 +50,10 @@ workloadAccounts:
     email: asd@feasfds.com
     organizationalUnit: ASDFsdfsdf
     warm: false
+  - name: 12qwd
+    email: ads`
+    organizationalUnit: adfdsf
+    warm: false
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
