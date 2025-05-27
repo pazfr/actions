@@ -70,6 +70,9 @@ workloadAccounts:
   - name: NOY
     email: sdfsdf213
     organizationalUnit: esfsadfsf
+  - name: D
+    email: DD
+    organizationalUnit: DDD
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
