@@ -164,17 +164,5 @@ jobs:
                     "text": "*➡️ Review Pull Request:* <${{ env.PR_URL }}|PR #${{ env.PR_NUMBER }}>"
                   }
                 }
-                // Optional: If you have a dry-run/plan step that runs after this in the same workflow,
-                // you could uncomment and adapt the following:
-                // ,
-                // {
-                //   "type": "context",
-                //   "elements": [
-                //     {
-                //       "type": "mrkdwn",
-                //       "text": "Next steps: An automated plan/dry-run will be generated and (optionally) attached to the PR."
-                //     }
-                //   ]
-                // }
               ]
             }
