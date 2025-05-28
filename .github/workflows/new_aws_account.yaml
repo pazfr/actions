@@ -132,7 +132,7 @@ jobs:
           icon_emoji: ':github:'
           payload: |
             {
-              "channel": "${{ env.SLACK_CHANNEL_ID }}",
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
               "text": "🚀 New AWS Account PR Created for review: ${{ env.ACCOUNT_NAME }}",
               "blocks": [
                 {
