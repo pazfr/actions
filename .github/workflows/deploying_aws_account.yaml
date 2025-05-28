@@ -29,7 +29,7 @@ jobs:
       - name: Zip Repository Contents
         id: zip_repo
         run: |
-          ZIP_FILENAME="aws-accelerator-configuration.zip"
+          ZIP_FILENAME="aws-accelerator-config.zip"
           echo "Zipping repository contents to $ZIP_FILENAME..."
           zip -r ${{ github.workspace }}/$ZIP_FILENAME . -x ".git/*" -x ".github/*"
           echo "Repository content zipped to ${{ github.workspace }}/$ZIP_FILENAME"
