@@ -127,6 +127,7 @@ jobs:
           PR_NUMBER: ${{ steps.create_pr_cli.outputs.pr_number }}   
         with:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
+          method: chat.postMessage
           username: 'Github Actions Bot'
           icon_emoji: ':github:'
           payload: |
