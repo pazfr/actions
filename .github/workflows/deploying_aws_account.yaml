@@ -1,16 +1,21 @@
-name: Process Merged AWS Account PR
+name: Deploy AWS Account Post Merge Actions
 
 on:
   pull_request:
-    types: [closed] # This workflow runs when any PR is closed
+    branches:
+      - main  
+    types: [closed] 
 
 permissions:
   contents: read 
-  id-token: write  # REQUIRED for OIDC to AWS authentication
+  id-token: write
 
 jobs:
+  ##################################################################################
+  # 1. Zip the configuration and Upload to S3                                      
+  ##################################################################################
   post_merge_actions:
-    name: Perform Actions After Account PR Merge
+    name: Perform Zip and Upload Actions
     if: |
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.head.ref, 'feature/add-account-')
@@ -19,8 +24,6 @@ jobs:
       - name: Checkout repository (merged base branch)
         uses: actions/checkout@v4
         with:
-          # Checkout the code from the branch the PR was merged into (e.g., main)
-          # This ensures we have the updated accounts-config.yaml
           ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Zip Repository Contents
@@ -34,25 +37,28 @@ jobs:
           echo "zip_filename=$ZIP_FILENAME" >> $GITHUB_OUTPUT
 
       - name: Configure AWS Credentials via OIDC
-        env:
-          AWS_ACCOUNT_ID: "615299762807"
-          AWS_ASSUME_ROLE_ARN: "arn:aws:iam::615299762807:role/github_role" # <<< REPLACE THIS
-          REGION: us-east-1 
-        uses: aws-actions/configure-aws-credentials@v4 # Using latest major version
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          # Replace with the ARN of the IAM Role you created in AWS
-          role-to-assume: ${{ env.AWS_ASSUME_ROLE_ARN }}
-          aws-region: ${{ env.REGION }} # e.g., us-east-1, region of your S3 bucket
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Upload Package to S3
         env:
-          S3_BUCKET_NAME: "testbacket123123123"
-          ACCOUNT_NAME: ${{ steps.extract_info.outputs.account_name }}
-          ZIP_FILE_PATH: "${{ github.workspace }}/${{ steps.zip_repo.outputs.zip_filename }}"
-          S3_OBJECT_KEY: "${{ env.BUCKET_NAME }}/zipped/"
-        run: |
-          set -ex # Exit on error, print commands
-          echo "Uploading $ZIP_FILE_PATH to s3://$S3_BUCKET_NAME/$S3_OBJECT_KEY ..."
-          aws s3 cp "$ZIP_FILE_PATH" "s3://$S3_BUCKET_NAME/$S3_OBJECT_KEY"
-          echo "Successfully uploaded to s3://$S3_BUCKET_NAME/$S3_OBJECT_KEY"
 
+          S3_BUCKET: ${{ secrets.S3_UPLOAD_BUCKET_NAME }}
+          ZIP_FILE_PATH: "${{ github.workspace }}/${{ steps.zip_repo.outputs.zip_filename }}"
+        run: |
+          set -ex # Exit on error, print commands"
+
+          S3_OBJECT_KEY="zipped/${{ steps.zip_repo.outputs.zip_filename }}"
+     
+          echo "Uploading $ZIP_FILE_PATH to s3://$S3_BUCKET/$S3_OBJECT_KEY ..."
+          aws s3 cp "$ZIP_FILE_PATH" "s3://$S3_BUCKET/$S3_OBJECT_KEY"
+          echo "Successfully uploaded $ZIP_FILE_PATH to s3://$S3_BUCKET/$S3_OBJECT_KEY"
+
+
+###################################################################################
+# Run apply workflow to trigger AWS CodePipeline.
+# Wait for account creation.
+# Send Slack notification with success/failure.
+###################################################################################

@@ -12,10 +12,21 @@ on:
         required: true
         type: string
       organizationalUnit:
-        description: 'Organizational Unit (e.g., Workloads/NewApp)'
+        description: 'Organizational Unit'
         required: true
-        type: string
-
+        type: choice 
+        options:    
+          - Security
+          - Infrastructure
+          - Workloads
+          - Workloads/ProdMultiTenant
+          - Workloads/ProdSingleTenant
+          - Workloads/Non-Prod
+          - Workloads/Non-Prod/Dev
+          - Workloads/Non-Prod/Staging
+          - SavingPlans
+          - Excluded
+        default: Workloads 
 
 permissions:
   contents: write      
@@ -88,10 +99,6 @@ jobs:
 
           echo "Creating PR for branch '$PR_BRANCH' against base '$BASE_BRANCH'..."
 
-          # 'gh pr create' prints the PR URL to stdout on success.
-          # It will use GH_TOKEN (or GITHUB_TOKEN by default) for authentication.
-          # If it fails (e.g., branch not pushed, no difference, auth issue),
-          # it will exit with a non-zero status, and 'set -eo pipefail' will stop the script.
           PR_URL=$(gh pr create \
             --base "$BASE_BRANCH" \
             --head "$PR_BRANCH" \
@@ -105,3 +112,7 @@ jobs:
           echo "Extracted PR Number: $PR_NUMBER"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
+
+  ##################################################################################
+  # 2. Slack Notification
+  ##################################################################################
