@@ -128,10 +128,10 @@ jobs:
         with:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           method: chat.postMessage
-          username: 'Github Actions Bot'
-          icon_emoji: ':github:'
           payload: |
             {
+              "username": "GitHub Actions Bot",
+              "icon_emoji": ":octocat:",
               "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
               "text": "🚀 New AWS Account PR Created for review: ${{ env.ACCOUNT_NAME }}",
               "blocks": [
