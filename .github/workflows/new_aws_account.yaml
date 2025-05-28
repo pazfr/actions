@@ -118,18 +118,20 @@ jobs:
   ##################################################################################
       - name: Notify Slack on PR Creation
         if: success()
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v2.1.0
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           ACCOUNT_NAME: ${{ github.event.inputs.accountName }}
           ACCOUNT_EMAIL: ${{ github.event.inputs.accountEmail }}
           ACCOUNT_OU: ${{ github.event.inputs.organizationalUnit }}
           PR_URL: ${{ steps.create_pr_cli.outputs.pr_url }}         
           PR_NUMBER: ${{ steps.create_pr_cli.outputs.pr_number }}   
         with:
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          username: 'Github Actions Bot'
+          icon_emoji: ':github:'
           payload: |
             {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "channel": "${{ env.SLACK_CHANNEL_ID }}",
               "text": "🚀 New AWS Account PR Created for review: ${{ env.ACCOUNT_NAME }}",
               "blocks": [
                 {
