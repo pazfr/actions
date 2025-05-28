@@ -73,6 +73,9 @@ workloadAccounts:
   - name: D
     email: DD
     organizationalUnit: DDD
+  - name: TEST2
+    email: sadasd@gmail.com
+    organizationalUnit: Workloads/ProdMultiTenant
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
