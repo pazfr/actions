@@ -116,3 +116,65 @@ jobs:
   ##################################################################################
   # 2. Slack Notification
   ##################################################################################
+      - name: Notify Slack on PR Creation
+        if: success()
+        uses: slackapi/slack-github-action@v1.25.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          ACCOUNT_NAME: ${{ github.event.inputs.accountName }}
+          ACCOUNT_EMAIL: ${{ github.event.inputs.accountEmail }}
+          ACCOUNT_OU: ${{ github.event.inputs.organizationalUnit }}
+          PR_URL: ${{ steps.create_pr_cli.outputs.pr_url }}         
+          PR_NUMBER: ${{ steps.create_pr_cli.outputs.pr_number }}   
+        with:
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "text": "🚀 New AWS Account PR Created for review: ${{ env.ACCOUNT_NAME }}",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🚀 New AWS Account PR Ready for Review"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "A new Pull Request has been created to add the following AWS account. Please review and approve:"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Account Name:*\n${{ env.ACCOUNT_NAME }}" },
+                    { "type": "mrkdwn", "text": "*Email:*\n${{ env.ACCOUNT_EMAIL }}" },
+                    { "type": "mrkdwn", "text": "*Organizational Unit:*\n${{ env.ACCOUNT_OU }}" }
+                  ]
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*➡️ Review Pull Request:* <${{ env.PR_URL }}|PR #${{ env.PR_NUMBER }}>"
+                  }
+                }
+                // Optional: If you have a dry-run/plan step that runs after this in the same workflow,
+                // you could uncomment and adapt the following:
+                // ,
+                // {
+                //   "type": "context",
+                //   "elements": [
+                //     {
+                //       "type": "mrkdwn",
+                //       "text": "Next steps: An automated plan/dry-run will be generated and (optionally) attached to the PR."
+                //     }
+                //   ]
+                // }
+              ]
+            }
