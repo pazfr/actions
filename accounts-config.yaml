@@ -76,6 +76,9 @@ workloadAccounts:
   - name: TEST2
     email: sadasd@gmail.com
     organizationalUnit: Workloads/ProdMultiTenant
+  - name: PAZ2
+    email: qwada@gmail.com
+    organizationalUnit: Workloads/ProdSingleTenant
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
