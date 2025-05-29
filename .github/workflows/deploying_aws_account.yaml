@@ -26,6 +26,14 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 
+      - name: Extract PR Account Name
+        id: extract_info
+        run: |
+          ACCOUNT_NAME=$(echo "${{ github.event.pull_request.title }}" | sed -n 's/feat: Add new AWS account //p')
+          echo "account_name=$ACCOUNT_NAME" >> $GITHUB_OUTPUT
+
+
+
       - name: Zip Repository Contents
         id: zip_repo
         run: |
@@ -62,3 +70,86 @@ jobs:
 # Wait for account creation.
 # Send Slack notification with success/failure.
 ###################################################################################
+      - name: Trigger AWS Accelerator CodePipeline (Currently Bypassed)
+        id: start_codepipeline 
+        env:
+          PIPELINE_NAME: "AWSAccelerator-Pipeline" 
+        run: |
+          echo "INFO: Triggering CodePipeline ('${{ env.PIPELINE_NAME }}')"
+          EXECUTION_ID=$(aws codepipeline start-pipeline-execution --name "${{ env.PIPELINE_NAME }}" --region ${{ secrets.AWS_DEFAULT_REGION}} --query 'pipelineExecutionId' --output text)
+          if [ -z "$EXECUTION_ID" ]; then
+             echo "::error::Failed to start CodePipeline '${{ env.PIPELINE_NAME }}' or retrieve execution ID."
+             exit 1
+          fi
+          echo "Successfully started CodePipeline '${{ env.PIPELINE_NAME }}'
+          echo "pipeline_execution_id=$EXECUTION_ID" >> $GITHUB_OUTPUT
+
+      - name: Wait for Account Creation (Placeholder / Conceptual Polling)
+        id: wait_for_account_creation
+        env:
+          PIPELINE_NAME: "AWSAccelerator-Pipeline"
+          PIPELINE_EXECUTION_ID: ${{ steps.start_codepipeline.outputs.pipeline_execution_id }}
+          MAX_POLL_ATTEMPTS: 6  # attempts
+          POLL_INTERVAL_SECONDS: 600 # 10 minutes
+        run: |
+
+          echo "INFO: Account creation waiting period."
+            for i in $(seq 1 ${{ env.MAX_POLL_ATTEMPTS }}); do
+              echo "Polling attempt $i of ${{ env.MAX_POLL_ATTEMPTS }}..."
+              STATUS=$(aws codepipeline get-pipeline-execution --pipeline-name "${{ env.PIPELINE_NAME }}" --pipeline-execution-id "${{ env.PIPELINE_EXECUTION_ID }}" --query 'pipelineExecution.status' --output text)
+            echo "Current status: $STATUS"
+            if [ "$STATUS" == "Succeeded" ]; then
+              echo "Pipeline execution Succeeded."
+              echo "pipeline_status=Succeeded" >> $GITHUB_OUTPUT
+              exit 0
+            elif [ "$STATUS" == "Failed" ] || [ "$STATUS" == "Cancelled" ] || [ "$STATUS" == "Stopped" ]; then
+              echo "error::Pipeline execution $STATUS."
+              echo "pipeline_status=$STATUS" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            if [ "$i" -lt "${{ env.MAX_POLL_ATTEMPTS }}" ]; then
+              echo "Waiting for ${{ env.POLL_INTERVAL_SECONDS }} seconds before next poll..."
+              sleep ${{ env.POLL_INTERVAL_SECONDS }}
+            fi
+          done
+
+      - name: Send Slack Notification
+        if: always() 
+        uses: slackapi/slack-github-action@v2.1.0
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          ACCOUNT_NAME: ${{ steps.extract_info.outputs.account_name }}
+          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status }}
+        with:
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          method: chat.postMessage
+          payload: |
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "text": "AWS Account Workflow Update for: ${{ env.ACCOUNT_NAME }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*AWS Account Workflow Update for Account: `${{ env.ACCOUNT_NAME }}`*\nMerged PR: <${{ env.PR_URL }}|${{ env.PR_TITLE }}>"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "The AWS account provisioning process has been handled. Status: `${{ env.PROCESS_OUTCOME_STATUS }}`.\n${{ env.PROCESS_OUTCOME_STATUS == 'Succeeded_Bypassed' && 'Note: Actual pipeline trigger and polling were bypassed in this workflow run.' || (env.PROCESS_OUTCOME_STATUS == 'Succeeded' && '✅ Account provisioning reported as successful by pipeline.' || '❌ Account provisioning reported issues or timed out. Status: `${{ env.PROCESS_OUTCOME_STATUS }}`. Please check AWS CodePipeline logs.') }}"
+                  }
+                }
+                // You can add more detailed blocks here based on PROCESS_OUTCOME_STATUS
+                // For example, if Succeeded, include account parameters again or link to console.
+              ]
+            }
+ 
+
+
+
+
+          
