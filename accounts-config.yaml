@@ -85,6 +85,9 @@ workloadAccounts:
   - name: TEST7
     email: 123@sadf
     organizationalUnit: Workloads
+  - name: TEST8
+    email: 123122@dfsa.com
+    organizationalUnit: Workloads
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
