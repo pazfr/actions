@@ -116,7 +116,7 @@ jobs:
       - name: Set account provisioning status message
         id: account_status
         env:
-          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status }} || "Unknown"
+          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status || "Unknown"}}  
         run: |
           if [ "${{ env.PROCESS_OUTCOME_STATUS }}" == "Succeeded" ]; then
             echo "status_message=✅ Account provisioning reported as successful by pipeline." >> $GITHUB_OUTPUT
