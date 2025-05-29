@@ -76,7 +76,7 @@ jobs:
           PIPELINE_NAME: "AWSAccelerator-Pipeline" 
         run: |
           echo "INFO: Triggering CodePipeline ('${{ env.PIPELINE_NAME }}')"
-          EXECUTION_ID=$(aws codepipeline start-pipeline-execution --name "${{ env.PIPELINE_NAME }}" --region ${{ secrets.AWS_DEFAULT_REGION}} --query 'pipelineExecutionId' --output text)
+          EXECUTION_ID=$(aws codepipeline start-pipeline-execution --name "${{ env.PIPELINE_NAME }}" --region "${{ secrets.AWS_DEFAULT_REGION}}"" --query 'pipelineExecutionId' --output text)
           if [ -z "$EXECUTION_ID" ]; then
              echo "::error::Failed to start CodePipeline '${{ env.PIPELINE_NAME }}' or retrieve execution ID."
              exit 1
