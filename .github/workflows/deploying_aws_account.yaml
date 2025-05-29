@@ -113,6 +113,15 @@ jobs:
             fi
           done
 
+      - name: Set account provisioning status message
+        id: account_status
+        run: |
+          if [ "${{ env.PROCESS_OUTCOME_STATUS }}" == "Succeeded" ]; then
+            echo "status_message=✅ Account provisioning reported as successful by pipeline." >> $GITHUB_OUTPUT
+          else
+            echo "status_message=❌ Account provisioning reported issues or timed out. Status: ${{ env.PROCESS_OUTCOME_STATUS }}. Please check AWS CodePipeline logs." >> $GITHUB_OUTPUT
+          fi
+
       - name: Send Slack Notification
         if: always() 
         uses: slackapi/slack-github-action@v2.1.0
@@ -121,7 +130,7 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           ACCOUNT_NAME: ${{ steps.extract_info.outputs.account_name }}
           PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status }}
-          SLACK_MESSAGE_DETAIL: "${{ (steps.wait_for_account_creation.outputs.pipeline_status == 'Succeeded' ? '✅ Account provisioning reported as successful by the pipeline.' : format('❌ Account provisioning reported issues, timed out, or has an unexpected status: {0}. Please check AWS CodePipeline logs for more details.', steps.wait_for_account_creation.outputs.pipeline_status || 'Unknown_Status')) }}"
+          SLACK_MESSAGE_DETAIL: "${{ steps.account_status.outputs.status_message }}"
 
         with:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
