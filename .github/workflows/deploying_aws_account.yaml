@@ -98,6 +98,7 @@ jobs:
               echo "Polling attempt $((i + 1)) of ${{ env.MAX_POLL_ATTEMPTS }}..."
               STATUS=$(aws codepipeline get-pipeline-execution --pipeline-name "${{ env.PIPELINE_NAME }}" --pipeline-execution-id "${{ env.PIPELINE_EXECUTION_ID }}" --query 'pipelineExecution.status' --output text)
             echo "Current status: $STATUS"
+            echo "pipeline_status=$STATUS" >> $GITHUB_OUTPUT
             if [ "$STATUS" == "Succeeded" ]; then
               echo "Pipeline execution Succeeded."
               echo "pipeline_status=Succeeded" >> $GITHUB_OUTPUT
@@ -116,7 +117,7 @@ jobs:
       - name: Set account provisioning status message
         id: account_status
         env:
-          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status || "Unknown"}}  
+          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status}}  
         run: |
           if [ "${{ env.PROCESS_OUTCOME_STATUS }}" == "Succeeded" ]; then
             echo "status_message=✅ Account provisioning reported as successful by pipeline." >> $GITHUB_OUTPUT
