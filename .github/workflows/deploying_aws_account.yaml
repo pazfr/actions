@@ -140,12 +140,13 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The AWS account provisioning process has been handled. Status: "${{ env.PROCESS_OUTCOME_STATUS }}".\n || (env.PROCESS_OUTCOME_STATUS == 'Succeeded' && '✅ Account provisioning reported as successful by pipeline.' || '❌ Account provisioning reported issues or timed out. Status: `${{ env.PROCESS_OUTCOME_STATUS }}`. Please check AWS CodePipeline logs.') }}"
+                    "text": "The AWS account provisioning process has been handled. Status: \"${{ env.PROCESS_OUTCOME_STATUS }}\".\n${
+                      if (env.PROCESS_OUTCOME_STATUS == 'Succeeded') ? '✅ Account provisioning reported as successful by pipeline.' : '❌ Account provisioning reported issues or timed out. Status: `${{ env.PROCESS_OUTCOME_STATUS }}`. Please check AWS CodePipeline logs.'
+                    }"
                   }
                 }
               ]
             }
- 
 
 
 
