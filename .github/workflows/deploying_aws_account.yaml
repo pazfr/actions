@@ -89,7 +89,7 @@ jobs:
         env:
           PIPELINE_NAME: "AWSAccelerator-Pipeline"
           PIPELINE_EXECUTION_ID: ${{ steps.start_codepipeline.outputs.pipeline_execution_id }}
-          MAX_POLL_ATTEMPTS: 1  # attempts
+          MAX_POLL_ATTEMPTS: 2  # attempts
           POLL_INTERVAL_SECONDS: 60 # 10 minutes
         run: |
 
@@ -140,7 +140,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "The AWS account provisioning process has been handled. Status: `${{ env.PROCESS_OUTCOME_STATUS }}`.\n${{ env.PROCESS_OUTCOME_STATUS == 'Succeeded_Bypassed' && 'Note: Actual pipeline trigger and polling were bypassed in this workflow run.' || (env.PROCESS_OUTCOME_STATUS == 'Succeeded' && '✅ Account provisioning reported as successful by pipeline.' || '❌ Account provisioning reported issues or timed out. Status: `${{ env.PROCESS_OUTCOME_STATUS }}`. Please check AWS CodePipeline logs.') }}"
+                    "text": "The AWS account provisioning process has been handled. Status: "${{ env.PROCESS_OUTCOME_STATUS }}".\n || (env.PROCESS_OUTCOME_STATUS == 'Succeeded' && '✅ Account provisioning reported as successful by pipeline.' || '❌ Account provisioning reported issues or timed out. Status: `${{ env.PROCESS_OUTCOME_STATUS }}`. Please check AWS CodePipeline logs.') }}"
                   }
                 }
               ]
