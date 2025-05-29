@@ -121,7 +121,7 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           ACCOUNT_NAME: ${{ steps.extract_info.outputs.account_name }}
           PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status }}
-          SLACK_MESSAGE_DETAIL: "${{ steps.wait_for_account_creation.outputs.pipeline_status == 'Succeeded' ? '✅ Account provisioning reported as successful by the pipeline.' : format('❌ Account provisioning reported issues, timed out, or has an unexpected status: {0}. Please check AWS CodePipeline logs for more details.', steps.wait_for_account_creation.outputs.pipeline_status || 'Unknown_Status') }}"
+          SLACK_MESSAGE_DETAIL: "${{ (steps.wait_for_account_creation.outputs.pipeline_status == 'Succeeded' ? '✅ Account provisioning reported as successful by the pipeline.' : format('❌ Account provisioning reported issues, timed out, or has an unexpected status: {0}. Please check AWS CodePipeline logs for more details.', steps.wait_for_account_creation.outputs.pipeline_status || 'Unknown_Status')) }}"
 
         with:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
