@@ -100,6 +100,9 @@ workloadAccounts:
   - name: TEST12
     email: qwqwd@afs
     organizationalUnit: Workloads
+  - name: TEST13
+    email: 123@awsd
+    organizationalUnit: Workloads
 #  - name: 123-aws-eventbridge-test
 #    email: aws-eventbridge@123.io
 #    organizationalUnit: "Workloads/Non-Prod/Dev"
