@@ -81,7 +81,7 @@ jobs:
              echo "::error::Failed to start CodePipeline '${{ env.PIPELINE_NAME }}' or retrieve execution ID."
              exit 1
           fi
-          echo "Successfully started CodePipeline '${{ env.PIPELINE_NAME }}'
+          echo "Successfully started CodePipeline '${{ env.PIPELINE_NAME }}'"
           echo "pipeline_execution_id=$EXECUTION_ID" >> $GITHUB_OUTPUT
 
       - name: Wait for Account Creation (Placeholder / Conceptual Polling)
