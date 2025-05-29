@@ -89,7 +89,7 @@ jobs:
         env:
           PIPELINE_NAME: "AWSAccelerator-Pipeline"
           PIPELINE_EXECUTION_ID: ${{ steps.start_codepipeline.outputs.pipeline_execution_id }}
-          MAX_POLL_ATTEMPTS: 4  # attempts
+          MAX_POLL_ATTEMPTS: 5  # attempts
           POLL_INTERVAL_SECONDS: 30 # minutes
         run: |
 
@@ -116,7 +116,7 @@ jobs:
       - name: Set account provisioning status message
         id: account_status
         env:
-          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status }}
+          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status }} || "Unknown"
         run: |
           if [ "${{ env.PROCESS_OUTCOME_STATUS }}" == "Succeeded" ]; then
             echo "status_message=✅ Account provisioning reported as successful by pipeline." >> $GITHUB_OUTPUT
