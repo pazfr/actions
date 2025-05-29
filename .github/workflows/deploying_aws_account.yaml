@@ -89,13 +89,13 @@ jobs:
         env:
           PIPELINE_NAME: "AWSAccelerator-Pipeline"
           PIPELINE_EXECUTION_ID: ${{ steps.start_codepipeline.outputs.pipeline_execution_id }}
-          MAX_POLL_ATTEMPTS: 2  # attempts
-          POLL_INTERVAL_SECONDS: 60 # 10 minutes
+          MAX_POLL_ATTEMPTS: 4  # attempts
+          POLL_INTERVAL_SECONDS: 30 # minutes
         run: |
 
           echo "INFO: Account creation waiting period."
-            for i in $(seq 1 ${{ env.MAX_POLL_ATTEMPTS }}); do
-              echo "Polling attempt $i of ${{ env.MAX_POLL_ATTEMPTS }}..."
+            for i in $(seq 0 ${{ env.MAX_POLL_ATTEMPTS }}); do
+              echo "Polling attempt $((i + 1)) of ${{ env.MAX_POLL_ATTEMPTS }}..."
               STATUS=$(aws codepipeline get-pipeline-execution --pipeline-name "${{ env.PIPELINE_NAME }}" --pipeline-execution-id "${{ env.PIPELINE_EXECUTION_ID }}" --query 'pipelineExecution.status' --output text)
             echo "Current status: $STATUS"
             if [ "$STATUS" == "Succeeded" ]; then
@@ -115,6 +115,8 @@ jobs:
 
       - name: Set account provisioning status message
         id: account_status
+        env:
+          PROCESS_OUTCOME_STATUS: ${{ steps.wait_for_account_creation.outputs.pipeline_status }}
         run: |
           if [ "${{ env.PROCESS_OUTCOME_STATUS }}" == "Succeeded" ]; then
             echo "status_message=✅ Account provisioning reported as successful by pipeline." >> $GITHUB_OUTPUT
